@@ -3,6 +3,19 @@ import discord
 from autocorrect import spell
 import enchant
 import re
+import random
+
+snarkycomments =   ['Not sure why I even bother.', 
+                    'But hey what do I know?',
+                    'It happens to the best.', 
+                    'It can happen to all of us.', 
+                    'Not trying to get in your head or anything.',
+                    'Kind of a rookie mistake.',
+                    'What we in the business call "shit spelling".',
+                    'How could that even happen?',
+                    'Whoopsie-daisie.',
+                    'That is pretty bad.'
+                    'You did go to school right?']
 
 client = discord.Client()
 sleeping = False
@@ -19,26 +32,38 @@ async def on_ready():
 async def on_message(message):
     global sleeping
     skip = False
-    if (client.user.mentioned_in(message)):
-            sleeping = not(sleeping)
-            await client.send_message(message.channel, '`I heard my name, so I will either sleep or wake up.`')
-            skip = True
-    if  (message.author != client.user and (not(sleeping) and not skip)):
-        if not(message.content.endswith('.') or message.content.endswith('?') or message.content.endswith('!')):
-            await client.send_message(message.channel, '`Remember full stops {}!`'.format(message.author.name))
-        firstletter = message.content[:1]
-        if not(firstletter.isupper()):
-            await client.send_message(message.channel, '`Remember uppercase {}!`'.format(message.author.name))
-        dic = enchant.Dict("en_us")
-        corrWords = {}
-        for word in message.content.split():
-            word = re.sub('[!@#$]', '', word)
-            if not (dic.check(word)):
-                corrWords[word] = dic.suggest(word)
-                probably = spell(word)
-        for key in corrWords:
-            await client.send_message(message.channel, '`Did you mean {}? Probably {}`'.format(corrWords[key], probably))
-                
-        
+    dic = enchant.Dict("en_us")
+    suggestions = {}
 
+    if (client.user.mentioned_in(message)):
+        if (sleeping):
+            await client.send_message(message.channel, '`I heard my name, so I will wake up.`')
+        else:
+            await client.send_message(message.channel, '`I heard my name, so I will sleep.`')
+        sleeping = not(sleeping)
+        skip = True
+        
+    if  (message.author != client.user and not(sleeping) and not skip):   
+
+   #     if not(message.content.endswith('.') or message.content.endswith('?') or message.content.endswith('!')):    #Full stops.
+   #         await client.send_message(message.channel, '`Remember full stops {}!`'.format(message.author.name)) 
+   #     firstletter = message.content[:1]
+   #     if not(message.content[:1].isupper()):                                                                              #Capital letter first!
+   #         await client.send_message(message.channel, '`Remember uppercase {}!`'.format(message.author.name))
+       
+        message.content = re.sub('-', ' ', message.content)
+        for word in message.content.split():
+            word = re.sub('[!@#$?,.]', '', word)
+            if not (dic.check(word)):
+                probably = spell(word)
+                if probably == word:
+                    continue
+                suggestions[word] = dic.suggest(word)
+        
+        for key in suggestions:
+            if (random.randint(1,10) <= 2):
+                await client.send_message(message.channel, '`You probably meant "{}" instead of {}. {}`'.format(probably, word, random.choice(snarkycomments)))
+            else:
+                await client.send_message(message.channel, '`You probably meant "{}" instead of {}.`'.format(probably, word))        
+        
 client.run('MzcyNjI4MDg1NjEyMjE2MzIw.DNHGVg.C1YYx4N6cv9uyz5ku-A0P24tJbs')
