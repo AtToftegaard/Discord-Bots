@@ -45,12 +45,6 @@ async def on_message(message):
         
     if  (message.author != client.user and not(sleeping) and not skip):   
 
-   #     if not(message.content.endswith('.') or message.content.endswith('?') or message.content.endswith('!')):    #Full stops.
-   #         await client.send_message(message.channel, '`Remember full stops {}!`'.format(message.author.name)) 
-   #     firstletter = message.content[:1]
-   #     if not(message.content[:1].isupper()):                                                                              #Capital letter first!
-   #         await client.send_message(message.channel, '`Remember uppercase {}!`'.format(message.author.name))
-       
         message.content = re.sub('-', ' ', message.content)
         for word in message.content.split():
             word = re.sub('[!@#$?,.]', '', word)
@@ -66,4 +60,4 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, '`You probably meant "{}" instead of {}.`'.format(probably, word))        
         
-client.run('MzcyNjI4MDg1NjEyMjE2MzIw.DNHGVg.C1YYx4N6cv9uyz5ku-A0P24tJbs')
+client.run()
